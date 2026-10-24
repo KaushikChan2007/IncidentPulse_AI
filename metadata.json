@@ -1,0 +1,1 @@
+{"name":"IncidentPulse AI","description":"Tells developers whether an app error is caused by their own code or a third-party vendor with confidence scores and linked evidence.","requestFramePermissions":[],"majorCapabilities":["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]}
