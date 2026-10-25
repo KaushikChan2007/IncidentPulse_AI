@@ -1,35 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" role="img" aria-labelledby="title desc">
-  <title id="title">Incident correlation score weights</title>
-  <desc id="desc">Horizontal bar chart of the five maximum evidence weights, totaling 100 points.</desc>
-  <rect width="900" height="300" rx="18" fill="#f2f7f3"/>
-  <text x="36" y="42" fill="#173b2c" font-family="Arial, sans-serif" font-size="22" font-weight="700">Correlation score weights</text>
-  <text x="36" y="67" fill="#617269" font-family="Arial, sans-serif" font-size="13">Maximum points per evidence signal - 100 points total</text>
-  <g font-family="Arial, sans-serif" font-size="14" fill="#293b32">
-    <text x="36" y="112">Vendor status overlap</text>
-    <text x="36" y="152">Error timing match</text>
-    <text x="36" y="192">Community report surge</text>
-    <text x="36" y="232">Affected changelog</text>
-    <text x="36" y="272">No recent deployment</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="510" viewBox="0 0 1100 510" role="img" aria-labelledby="title desc">
+  <title id="title">IncidentPulse AI correlation score weights</title>
+  <desc id="desc">Hand-drawn horizontal bar chart showing the maximum points for each evidence category, totaling 100 points.</desc>
+  <defs>
+    <filter id="paper">
+      <feTurbulence baseFrequency="0.04" numOctaves="2" seed="12" type="fractalNoise" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <style>
+      .ink{font-family:"Comic Sans MS","Segoe Print",cursive;fill:#263a32}
+      .label{font-size:22px}
+      .title{font-size:32px;font-weight:700}
+      .bar{stroke:#263a32;stroke-width:3;stroke-linecap:round;filter:url(#paper)}
+    </style>
+  </defs>
+  <rect width="1100" height="510" rx="28" fill="#fbfaf5"/>
+  <path d="M45 105 C260 96 767 111 1056 100" fill="none" stroke="#d5dfd5" stroke-width="2"/>
+  <text x="54" y="60" class="ink title">A score is a sum of evidence, not a guess</text>
+  <text x="57" y="88" class="ink label" fill="#61746a">Maximum base points for each candidate vendor - 100 points total</text>
+
+  <g class="ink label">
+    <text x="62" y="166">Status incident overlaps</text>
+    <text x="62" y="237">Error timing matches</text>
+    <text x="62" y="308">Community report surge</text>
+    <text x="62" y="379">Affected changelog</text>
+    <text x="62" y="450">No recent deployment</text>
   </g>
-  <g fill="#d7e4da">
-    <rect x="250" y="91" width="500" height="24" rx="12"/>
-    <rect x="250" y="131" width="500" height="24" rx="12"/>
-    <rect x="250" y="171" width="500" height="24" rx="12"/>
-    <rect x="250" y="211" width="500" height="24" rx="12"/>
-    <rect x="250" y="251" width="500" height="24" rx="12"/>
+  <g fill="none" stroke="#d9e5da" stroke-width="27" stroke-linecap="round">
+    <path d="M377 158 C505 156 675 160 872 158"/>
+    <path d="M377 229 C508 227 674 231 872 229"/>
+    <path d="M377 300 C507 298 674 302 872 300"/>
+    <path d="M377 371 C509 369 676 373 872 371"/>
+    <path d="M377 442 C507 440 677 444 872 442"/>
   </g>
-  <g fill="#246b4b">
-    <rect x="250" y="91" width="500" height="24" rx="12"/>
-    <rect x="250" y="131" width="429" height="24" rx="12"/>
-    <rect x="250" y="171" width="214" height="24" rx="12"/>
-    <rect x="250" y="211" width="143" height="24" rx="12"/>
-    <rect x="250" y="251" width="143" height="24" rx="12"/>
+  <g fill="none" stroke-linecap="round" stroke-width="20" filter="url(#paper)">
+    <path d="M377 158 C505 156 675 160 872 158" stroke="#4d9569"/>
+    <path d="M377 229 C490 227 677 231 801 229" stroke="#e6ad4f"/>
+    <path d="M377 300 C420 298 547 302 589 300" stroke="#c97562"/>
+    <path d="M377 371 C399 369 498 373 519 371" stroke="#7b78ad"/>
+    <path d="M377 442 C397 440 499 444 519 442" stroke="#608d91"/>
   </g>
-  <g fill="#173b2c" font-family="Arial, sans-serif" font-size="14" font-weight="700">
-    <text x="770" y="108">35</text>
-    <text x="699" y="148">30</text>
-    <text x="484" y="188">15</text>
-    <text x="413" y="228">10</text>
-    <text x="413" y="268">10</text>
+  <g class="ink title">
+    <text x="908" y="167">35</text>
+    <text x="837" y="238">30</text>
+    <text x="624" y="309">15</text>
+    <text x="552" y="380">10</text>
+    <text x="552" y="451">10</text>
   </g>
+  <path d="M376 475 C519 468 723 482 872 474" fill="none" stroke="#263a32" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="378" y="500" class="ink label" font-size="17">Base vendor score before any optional counter-check</text>
 </svg>

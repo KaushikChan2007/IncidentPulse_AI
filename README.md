@@ -10,6 +10,18 @@ The screenshot below shows the dashboard in its sample Auth0 outage scenario. De
 
 ![IncidentPulse AI incident dashboard in the sample Auth0 outage scenario](./docs/screenshots/incidentpulse-dashboard.png)
 
+## What we're building
+
+These whiteboard-style diagrams show the current prototype: dependency discovery and application telemetry feed a correlation engine, which combines those inputs with vendor signals and returns an evidence-backed incident view.
+
+### System architecture
+
+![Hand-drawn system architecture showing the dashboard, API, correlation engine, JSON data, and optional integrations](./docs/diagrams/system-architecture.svg)
+
+### Incident-analysis flow
+
+![Hand-drawn flowchart of dependency discovery, telemetry ingestion, signal collection, scoring, and the final verdict](./docs/diagrams/incident-flow.svg)
+
 ## What it does
 
 - **Maps a public GitHub repository's dependencies** by reading supported manifests and matching packages against the configured vendor catalog.
@@ -25,58 +37,7 @@ The current vendor catalog is Vercel, Supabase, Auth0, Stripe, and AWS S3. Repos
 
 The browser dashboard talks to a single Express server. The server validates API requests, records telemetry, runs the correlation engine, and calls vendor/repository integrations. Events and vendor-agent results are persisted as JSON files; Gemini and TinyFish are optional server-side integrations.
 
-<!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
-```mermaid
-flowchart TD
-    subgraph Client["Client"]
-        Browser["React dashboard"]
-    end
-    subgraph Server["Node and Express server"]
-        Api["REST API and Zod validation"]
-        Engine["Correlation engine"]
-        Storage["Telemetry storage and metrics"]
-        Scanner["GitHub dependency scanner"]
-        Agents["Status changelog and community agents"]
-    end
-    subgraph LocalData["Local JSON data"]
-        Events[("data/events.json")]
-        Cache[("data/cache files")]
-    end
-    subgraph ExternalServices["External services"]
-        Github["GitHub API and raw files"]
-        TinyFish["TinyFish web agent"]
-        Gemini["Google Gemini"]
-        StatusPages["Vendor status and changelog sites"]
-    end
-
-    Browser -->|"fetch dashboard data"| Api
-    Api -->|"run verdict sweep"| Engine
-    Api -->|"ingest and read metrics"| Storage
-    Api -->|"scan repository"| Scanner
-    Api -->|"refresh signals"| Agents
-    Storage -->|"persist events"| Events
-    Engine -->|"read telemetry"| Events
-    Agents -->|"read and update cached signals"| Cache
-    Scanner -->|"read manifests"| Github
-    Agents -->|"optional browser extraction"| TinyFish
-    Agents -->|"optional synthesis and extraction"| Gemini
-    Agents -->|"direct health probes"| StatusPages
-```
-
-### Incident-analysis flow
-
-```mermaid
-flowchart TD
-    Project["Public GitHub repository"] -->|"scan manifests"| Dependencies["Detected dependency candidates"]
-    Dependencies -->|"select configured vendors"| VendorSet["Active vendor set"]
-    Telemetry["Application error events"] -->|"ingest and aggregate"| Metrics["Error rate latency and event window"]
-    VendorSet -->|"probe or load cache"| Signals["Status changelog and community signals"]
-    Metrics -->|"compare with"| Correlation["Weighted correlation engine"]
-    Signals -->|"compare with"| Correlation
-    Deploy["Deployment context in scenario"] -->|"adds or removes deploy points"| Correlation
-    Correlation -->|"classify and explain"| Verdict["Vendor own code or inconclusive"]
-    Verdict -->|"render evidence and suggestions"| Dashboard["Incident dashboard"]
-```
+Detailed component relationships and the underlying technical diagrams are documented in the [architecture reference](./.github/modernize/assessment/engines/facts/architecture-diagram.md).
 
 1. Scan a public repository to find supported manifests and map matching packages to configured vendors.
 2. Ingest telemetry or load the bundled sample/replay events. The API computes minute-bucketed metrics from stored events when there are enough buckets; otherwise, the UI/API can use the bundled sample timeline.
@@ -89,6 +50,8 @@ flowchart TD
 The engine's base vendor score is a weighted sum. The criteria below describe the implemented formula; signal quality and freshness still depend on the configured integrations and data.
 
 ![Correlation score weights by evidence category](./docs/diagrams/scoring-weights.svg)
+
+The hand-drawn-style scoring graphic is a visual summary of the table below; the exact thresholds and criteria are described in the implementation notes.
 
 | Evidence criterion | Maximum points | Current behavior |
 | --- | ---: | --- |
@@ -182,7 +145,7 @@ Copy `.env.example` to `.env.local` and set only the credentials for integration
 | `TINYFISH_API_KEY` | No | Live web-agent extraction for vendor status, changelogs, and community reports. |
 | `GEMINI_API_KEY` | No | AI incident explanation and counter-check; the chat endpoint also uses it when available. |
 | `GITHUB_TOKEN` | No | Higher GitHub API rate limits while scanning public repositories. |
-| `APP_URL` | No | Target base URL for the replay script; defaults to `http://localhost:3000`. |
+| `APP_URL` | No | Replay target base URL; example defaults to `http://localhost:3000`. Set it to your deployed app URL when replaying remotely. |
 | `PORT` | No | Server port; defaults to `3000`. |
 
 Without credentials or live responses, the application can use the checked-in cache/sample data. The header/footer data mode distinguishes `LIVE`, `CACHED`, and `REPLAY`; cached or replay results are not proof of current external conditions.

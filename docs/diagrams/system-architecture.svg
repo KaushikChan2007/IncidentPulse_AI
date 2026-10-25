@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">IncidentPulse AI system architecture</title>
+  <desc id="desc">A hand-drawn style architecture diagram showing the React dashboard, Express API, correlation engine, JSON storage, signal agents, and optional external integrations.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L10 6 L1 11" fill="none" stroke="#243b32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <filter id="paper">
+      <feTurbulence baseFrequency="0.035" numOctaves="2" seed="8" type="fractalNoise" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <style>
+      .ink{font-family:"Comic Sans MS","Segoe Print",cursive;fill:#263a32}
+      .small{font-size:18px}
+      .body{font-size:21px}
+      .title{font-size:28px;font-weight:700}
+      .card{stroke:#263a32;stroke-width:3;stroke-linejoin:round;filter:url(#paper)}
+      .wire{fill:none;stroke:#263a32;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+      .optional{stroke-dasharray:10 9}
+    </style>
+  </defs>
+  <rect width="1400" height="820" rx="28" fill="#fbfaf5"/>
+  <path d="M42 111 C340 101 858 117 1350 106" fill="none" stroke="#d5dfd5" stroke-width="2"/>
+  <text x="58" y="60" class="ink title" font-size="35">IncidentPulse AI - what we are building</text>
+  <text x="60" y="92" class="ink small" fill="#61746a">A small incident-triage system: app signals in, explainable evidence out</text>
+
+  <path d="M257 367 C290 365 302 363 336 363" class="wire"/>
+  <path d="M585 363 C621 363 641 363 678 363" class="wire"/>
+  <path d="M922 364 C972 364 990 364 1038 364" class="wire"/>
+  <path d="M815 224 C815 255 800 264 800 294" class="wire"/>
+  <path d="M1038 153 C1015 151 998 160 976 171" class="wire optional"/>
+  <path d="M455 494 C455 536 455 560 455 573 C640 573 835 573 1010 573 C1010 451 1010 329 1010 265 C1010 244 1025 230 1051 219" class="wire optional"/>
+
+  <text x="273" y="343" class="ink small">HTTP</text>
+  <text x="599" y="343" class="ink small">run sweep</text>
+  <text x="939" y="343" class="ink small">read and write</text>
+  <text x="825" y="258" class="ink small">signals</text>
+  <text x="978" y="201" class="ink small">optional live queries</text>
+  <text x="629" y="603" class="ink small">scan public dependency manifests</text>
+
+  <g transform="rotate(-1 151 371)">
+    <rect x="48" y="281" width="210" height="187" rx="23" fill="#e5f0df" class="card"/>
+    <text x="72" y="324" class="ink title">Your app</text>
+    <text x="72" y="361" class="ink body">React dashboard</text>
+    <text x="72" y="393" class="ink small">Connect - Incident - Radar</text>
+    <text x="72" y="432" class="ink small">Charts, evidence, actions</text>
+  </g>
+
+  <g transform="rotate(1 459 366)">
+    <rect x="335" y="247" width="253" height="247" rx="24" fill="#fff0cc" class="card"/>
+    <text x="359" y="291" class="ink title">Express API</text>
+    <text x="359" y="331" class="ink body">Validate requests</text>
+    <text x="359" y="366" class="ink body">Ingest telemetry</text>
+    <text x="359" y="401" class="ink body">Scan public repos</text>
+    <text x="359" y="452" class="ink small">Zod - rate limit - REST</text>
+  </g>
+
+  <g transform="rotate(-1 800 382)">
+    <rect x="676" y="291" width="248" height="203" rx="25" fill="#e8e5fb" class="card"/>
+    <text x="700" y="337" class="ink title">Correlation engine</text>
+    <text x="700" y="377" class="ink body">Join incident evidence</text>
+    <text x="700" y="414" class="ink body">Score vendors 0-100</text>
+    <text x="700" y="458" class="ink small">Vendor / own code / unsure</text>
+  </g>
+
+  <g transform="rotate(1 1147 380)">
+    <rect x="1037" y="286" width="235" height="191" rx="24" fill="#e3f0f3" class="card"/>
+    <text x="1061" y="330" class="ink title">Local JSON</text>
+    <text x="1061" y="370" class="ink body">events.json</text>
+    <text x="1061" y="405" class="ink body">vendor caches</text>
+    <text x="1061" y="447" class="ink small">Prototype persistence</text>
+  </g>
+
+  <g transform="rotate(1.3 809 159)">
+    <rect x="648" y="128" width="328" height="101" rx="22" fill="#fce3df" class="card"/>
+    <text x="675" y="168" class="ink title">Signal agents</text>
+    <text x="675" y="202" class="ink body">Status - changelog - community</text>
+  </g>
+
+  <g transform="rotate(-0.7 1170 156)">
+    <rect x="1038" y="83" width="292" height="139" rx="22" fill="#f5e7d8" class="card"/>
+    <text x="1062" y="122" class="ink title">Optional connections</text>
+    <text x="1062" y="157" class="ink body">Vendor pages - GitHub</text>
+    <text x="1062" y="190" class="ink body">TinyFish - Gemini</text>
+  </g>
+
+  <path d="M94 698 C322 685 598 709 846 696" fill="none" stroke="#e1d5b9" stroke-width="3" stroke-linecap="round"/>
+  <text x="98" y="685" class="ink small" fill="#61746a">No database server or queue today. Sample and cached data keep the prototype runnable.</text>
+</svg>

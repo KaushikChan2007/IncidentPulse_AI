@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="960" viewBox="0 0 1400 960" role="img" aria-labelledby="title desc">
+  <title id="title">IncidentPulse AI incident-analysis flow</title>
+  <desc id="desc">A whiteboard-style flowchart showing repository scanning, error telemetry, vendor signals, evidence scoring, and three possible outcomes.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L10 6 L1 11" fill="none" stroke="#263a32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <filter id="paper">
+      <feTurbulence baseFrequency="0.035" numOctaves="2" seed="4" type="fractalNoise" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <style>
+      .ink{font-family:"Comic Sans MS","Segoe Print",cursive;fill:#263a32}
+      .small{font-size:18px}
+      .body{font-size:22px}
+      .title{font-size:28px;font-weight:700}
+      .card{stroke:#263a32;stroke-width:3;stroke-linejoin:round;filter:url(#paper)}
+      .wire{fill:none;stroke:#263a32;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1400" height="960" rx="28" fill="#fbfaf5"/>
+  <text x="58" y="59" class="ink title" font-size="35">How a sample incident becomes a useful answer</text>
+  <text x="60" y="91" class="ink small" fill="#61746a">Three independent evidence streams meet at the correlation engine</text>
+
+  <path d="M248 217 C248 259 248 276 248 323" class="wire"/>
+  <path d="M700 217 C700 257 700 277 700 323" class="wire"/>
+  <path d="M1152 217 C1152 259 1152 278 1152 323" class="wire"/>
+  <path d="M342 390 C429 427 512 453 578 489" class="wire"/>
+  <path d="M700 424 C700 448 700 462 700 487" class="wire"/>
+  <path d="M1055 390 C958 428 871 456 822 489" class="wire"/>
+  <path d="M700 604 C700 631 700 653 700 679" class="wire"/>
+  <path d="M700 778 C700 808 300 803 300 840" class="wire"/>
+  <path d="M700 778 C700 812 700 813 700 840" class="wire"/>
+  <path d="M700 778 C700 808 1100 803 1100 840" class="wire"/>
+
+  <text x="263" y="276" class="ink small">find packages</text>
+  <text x="715" y="276" class="ink small">group by minute</text>
+  <text x="1030" y="276" class="ink small">probe or use cache</text>
+  <text x="462" y="449" class="ink small">active vendors</text>
+  <text x="716" y="454" class="ink small">metrics</text>
+  <text x="877" y="448" class="ink small">status and changes</text>
+  <text x="714" y="646" class="ink small">apply verdict rules</text>
+
+  <g transform="rotate(-1 248 168)">
+    <rect x="86" y="113" width="324" height="105" rx="22" fill="#e5f0df" class="card"/>
+    <text x="111" y="154" class="ink title">1. Your project</text>
+    <text x="111" y="188" class="ink body">Public repo manifests</text>
+  </g>
+  <g transform="rotate(0.7 700 168)">
+    <rect x="528" y="113" width="344" height="105" rx="22" fill="#fff0cc" class="card"/>
+    <text x="553" y="154" class="ink title">2. Runtime errors</text>
+    <text x="553" y="188" class="ink body">Service - endpoint - status - latency</text>
+  </g>
+  <g transform="rotate(-0.8 1152 168)">
+    <rect x="986" y="113" width="332" height="105" rx="22" fill="#fce3df" class="card"/>
+    <text x="1011" y="154" class="ink title">3. Provider context</text>
+    <text x="1011" y="188" class="ink body">Health - changelog - reports</text>
+  </g>
+
+  <g transform="rotate(0.7 272 376)">
+    <rect x="117" y="323" width="311" height="111" rx="22" fill="#e8e5fb" class="card"/>
+    <text x="143" y="366" class="ink title">Dependency map</text>
+    <text x="143" y="400" class="ink body">Known vendor candidates</text>
+  </g>
+  <g transform="rotate(-0.6 700 376)">
+    <rect x="518" y="323" width="364" height="111" rx="22" fill="#fff0cc" class="card"/>
+    <text x="544" y="366" class="ink title">Telemetry metrics</text>
+    <text x="544" y="400" class="ink body">Error rate - p95 - event window</text>
+  </g>
+  <g transform="rotate(0.7 1128 376)">
+    <rect x="973" y="323" width="310" height="111" rx="22" fill="#fce3df" class="card"/>
+    <text x="999" y="366" class="ink title">Vendor signals</text>
+    <text x="999" y="400" class="ink body">Live when available, else cached</text>
+  </g>
+
+  <g transform="rotate(-0.5 700 548)">
+    <rect x="483" y="487" width="434" height="119" rx="26" fill="#e3f0f3" class="card"/>
+    <text x="514" y="534" class="ink title">Evidence correlation</text>
+    <text x="514" y="570" class="ink body">Compare timing and signal strength</text>
+  </g>
+  <g transform="rotate(0.5 700 727)">
+    <rect x="507" y="679" width="386" height="100" rx="25" fill="#e8e5fb" class="card"/>
+    <text x="541" y="720" class="ink title">Explainable score + rules</text>
+    <text x="541" y="753" class="ink body">0-100 base score, then verdict</text>
+  </g>
+
+  <g transform="rotate(-0.8 300 877)">
+    <rect x="126" y="839" width="348" height="84" rx="21" fill="#e5f0df" class="card"/>
+    <text x="154" y="876" class="ink title">Vendor issue</text>
+    <text x="154" y="905" class="ink small">Evidence points to provider</text>
+  </g>
+  <g transform="rotate(0.5 700 877)">
+    <rect x="526" y="839" width="348" height="84" rx="21" fill="#fff0cc" class="card"/>
+    <text x="554" y="876" class="ink title">Own-code issue</text>
+    <text x="554" y="905" class="ink small">Sample deploy scenario only</text>
+  </g>
+  <g transform="rotate(-0.4 1100 877)">
+    <rect x="926" y="839" width="348" height="84" rx="21" fill="#f5e7d8" class="card"/>
+    <text x="954" y="876" class="ink title">Inconclusive</text>
+    <text x="954" y="905" class="ink small">More or fresher evidence needed</text>
+  </g>
+</svg>
