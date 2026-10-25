@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sample Client App - IncidentPulse SDK Demo</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0F1713; color: #E6EFE9; padding: 2rem; }
+    .card { background: #162A20; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    button { background: #2F7D4F; color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer; margin-right: 0.5rem; margin-top: 1rem; }
+    button.error-btn { background: #A62B2B; }
+    button:hover { opacity: 0.9; }
+    pre { background: black; padding: 1rem; border-radius: 8px; font-size: 12px; color: #34D399; overflow-x: auto; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Sample Client App</h2>
+    <p>Simulates third-party vendor calls and forwards unhandled exceptions directly into IncidentPulse AI via <code>POST /api/ingest</code>.</p>
+    
+    <div>
+      <button onclick="callAuth0(false)">Call Auth0 (Nominal)</button>
+      <button class="error-btn" onclick="callAuth0(true)">Simulate Auth0 503 Outage</button>
+      <button class="error-btn" onclick="callSupabase(true)">Simulate DB Pool Leak</button>
+    </div>
+
+    <pre id="output">// Telemetry log console...</pre>
+  </div>
+
+  <script>
+    const log = (msg) => {
+      const out = document.getElementById('output');
+      out.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + out.textContent;
+    };
+
+    async function reportToIncidentPulse(payload) {
+      log(`Reporting to /api/ingest: ${payload.message}`);
+      try {
+        const res = await fetch('/api/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        log(`✓ Ingested. Event ID: ${data.eventId} -> Cause: ${data.attributedCause}`);
+      } catch (err) {
+        log(`✗ Failed to report: ${err.message}`);
+      }
+    }
+
+    function callAuth0(simulateFail) {
+      if (simulateFail) {
+        log('Calling https://auth0.com/oauth/token -> HTTP 503 Service Unavailable');
+        reportToIncidentPulse({
+          ts: new Date().toISOString(),
+          service: 'auth-gateway',
+          dependency: 'Auth0',
+          endpoint: '/api/auth/callback',
+          statusCode: 503,
+          latencyMs: 1420,
+          message: 'Auth0 upstream identity broker failure: HTTP 503 Service Unavailable'
+        });
+      } else {
+        log('Calling https://auth0.com/oauth/token -> HTTP 200 OK (38ms)');
+      }
+    }
+
+    function callSupabase(simulateFail) {
+      log('Calling Postgres DB Pool -> Error: connection pool timeout exceeded (3000ms)');
+      reportToIncidentPulse({
+        ts: new Date().toISOString(),
+        service: 'data-api',
+        dependency: 'Supabase',
+        endpoint: '/api/db/query',
+        statusCode: 500,
+        latencyMs: 3100,
+        message: 'Internal DB client acquire timeout: pool exhausted'
+      });
+    }
+  </script>
+</body>
+</html>
