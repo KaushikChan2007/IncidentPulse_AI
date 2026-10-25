@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" role="img" aria-labelledby="title desc">
+  <title id="title">Incident correlation score weights</title>
+  <desc id="desc">Horizontal bar chart of the five maximum evidence weights, totaling 100 points.</desc>
+  <rect width="900" height="300" rx="18" fill="#f2f7f3"/>
+  <text x="36" y="42" fill="#173b2c" font-family="Arial, sans-serif" font-size="22" font-weight="700">Correlation score weights</text>
+  <text x="36" y="67" fill="#617269" font-family="Arial, sans-serif" font-size="13">Maximum points per evidence signal - 100 points total</text>
+  <g font-family="Arial, sans-serif" font-size="14" fill="#293b32">
+    <text x="36" y="112">Vendor status overlap</text>
+    <text x="36" y="152">Error timing match</text>
+    <text x="36" y="192">Community report surge</text>
+    <text x="36" y="232">Affected changelog</text>
+    <text x="36" y="272">No recent deployment</text>
+  </g>
+  <g fill="#d7e4da">
+    <rect x="250" y="91" width="500" height="24" rx="12"/>
+    <rect x="250" y="131" width="500" height="24" rx="12"/>
+    <rect x="250" y="171" width="500" height="24" rx="12"/>
+    <rect x="250" y="211" width="500" height="24" rx="12"/>
+    <rect x="250" y="251" width="500" height="24" rx="12"/>
+  </g>
+  <g fill="#246b4b">
+    <rect x="250" y="91" width="500" height="24" rx="12"/>
+    <rect x="250" y="131" width="429" height="24" rx="12"/>
+    <rect x="250" y="171" width="214" height="24" rx="12"/>
+    <rect x="250" y="211" width="143" height="24" rx="12"/>
+    <rect x="250" y="251" width="143" height="24" rx="12"/>
+  </g>
+  <g fill="#173b2c" font-family="Arial, sans-serif" font-size="14" font-weight="700">
+    <text x="770" y="108">35</text>
+    <text x="699" y="148">30</text>
+    <text x="484" y="188">15</text>
+    <text x="413" y="228">10</text>
+    <text x="413" y="268">10</text>
+  </g>
+</svg>

@@ -1,124 +1,244 @@
 # IncidentPulse AI
 
-Deterministic, evidence-linked incident attribution that tells developers whether an app error is caused by their own code or a third-party vendor (hosting, database, auth, storage, payments), with Bayesian confidence scores and live evidence.
+IncidentPulse AI is an incident-triage dashboard and API that correlates application error telemetry with third-party service health, community reports, changelog changes, and deployment context. It presents an evidence-linked attribution as **vendor**, **own code**, or **inconclusive**, along with incident metrics and suggested next steps.
 
----
+> **Prototype scope:** The repository includes deterministic Auth0-outage and deploy-bug scenarios, sample telemetry, and cached vendor signals. The scoring workflow is a prototype, not a guarantee of correct root-cause analysis for arbitrary applications. Review the evidence and validate recommendations before acting on a production incident.
 
-## Quick Start (Run the Demo in 3 Commands)
+## Dashboard
 
-```bash
-# 1. Install dependencies
-npm install
+The screenshot below shows the dashboard in its sample Auth0 outage scenario. Demo values and cached signals are illustrative.
 
-# 2. Start the development server (Express backend + Vite client)
+![IncidentPulse AI incident dashboard in the sample Auth0 outage scenario](./docs/screenshots/incidentpulse-dashboard.png)
+
+## What it does
+
+- **Maps a public GitHub repository's dependencies** by reading supported manifests and matching packages against the configured vendor catalog.
+- **Accepts application error telemetry** and stores events locally for metric aggregation.
+- **Collects vendor signals** from status pages, changelogs, and community reports, using live integrations when configured and cached JSON otherwise.
+- **Calculates a weighted attribution score** for each configured vendor and returns evidence, confidence, fix suggestions, sweep logs, and a formatted incident brief.
+- **Visualizes incident health** with vendor status, error-rate and latency metrics, evidence, and change-radar cards.
+- **Replays a sample incident** or switches between the bundled vendor-outage and deployment-regression scenarios.
+
+The current vendor catalog is Vercel, Supabase, Auth0, Stripe, and AWS S3. Repository scanning currently recognizes selected JavaScript, Python, Go, and Rust manifest files; it is not a complete software bill of materials or source-code analyzer.
+
+## Architecture at a glance
+
+The browser dashboard talks to a single Express server. The server validates API requests, records telemetry, runs the correlation engine, and calls vendor/repository integrations. Events and vendor-agent results are persisted as JSON files; Gemini and TinyFish are optional server-side integrations.
+
+<!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
+```mermaid
+flowchart TD
+    subgraph Client["Client"]
+        Browser["React dashboard"]
+    end
+    subgraph Server["Node and Express server"]
+        Api["REST API and Zod validation"]
+        Engine["Correlation engine"]
+        Storage["Telemetry storage and metrics"]
+        Scanner["GitHub dependency scanner"]
+        Agents["Status changelog and community agents"]
+    end
+    subgraph LocalData["Local JSON data"]
+        Events[("data/events.json")]
+        Cache[("data/cache files")]
+    end
+    subgraph ExternalServices["External services"]
+        Github["GitHub API and raw files"]
+        TinyFish["TinyFish web agent"]
+        Gemini["Google Gemini"]
+        StatusPages["Vendor status and changelog sites"]
+    end
+
+    Browser -->|"fetch dashboard data"| Api
+    Api -->|"run verdict sweep"| Engine
+    Api -->|"ingest and read metrics"| Storage
+    Api -->|"scan repository"| Scanner
+    Api -->|"refresh signals"| Agents
+    Storage -->|"persist events"| Events
+    Engine -->|"read telemetry"| Events
+    Agents -->|"read and update cached signals"| Cache
+    Scanner -->|"read manifests"| Github
+    Agents -->|"optional browser extraction"| TinyFish
+    Agents -->|"optional synthesis and extraction"| Gemini
+    Agents -->|"direct health probes"| StatusPages
+```
+
+### Incident-analysis flow
+
+```mermaid
+flowchart TD
+    Project["Public GitHub repository"] -->|"scan manifests"| Dependencies["Detected dependency candidates"]
+    Dependencies -->|"select configured vendors"| VendorSet["Active vendor set"]
+    Telemetry["Application error events"] -->|"ingest and aggregate"| Metrics["Error rate latency and event window"]
+    VendorSet -->|"probe or load cache"| Signals["Status changelog and community signals"]
+    Metrics -->|"compare with"| Correlation["Weighted correlation engine"]
+    Signals -->|"compare with"| Correlation
+    Deploy["Deployment context in scenario"] -->|"adds or removes deploy points"| Correlation
+    Correlation -->|"classify and explain"| Verdict["Vendor own code or inconclusive"]
+    Verdict -->|"render evidence and suggestions"| Dashboard["Incident dashboard"]
+```
+
+1. Scan a public repository to find supported manifests and map matching packages to configured vendors.
+2. Ingest telemetry or load the bundled sample/replay events. The API computes minute-bucketed metrics from stored events when there are enough buckets; otherwise, the UI/API can use the bundled sample timeline.
+3. Refresh or read cached vendor status, changelog, and community signals.
+4. The correlation engine scores the active vendor candidates, assembles evidence, and applies the configured verdict rules.
+5. The API returns the verdict and related data for the dashboard. Gemini can optionally write the explanation and run an adversarial counter-check; the numeric score starts from the deterministic formula.
+
+### Correlation score
+
+The engine's base vendor score is a weighted sum. The criteria below describe the implemented formula; signal quality and freshness still depend on the configured integrations and data.
+
+![Correlation score weights by evidence category](./docs/diagrams/scoring-weights.svg)
+
+| Evidence criterion | Maximum points | Current behavior |
+| --- | ---: | --- |
+| Vendor status overlaps the incident | 35 | Awards points when the status signal is degraded or in a major outage. |
+| Error timing matches vendor window | 30 | Matches the configured incident scenario/timing. |
+| Community outage-report surge | 15 | Awards points when the report count exceeds the implemented threshold. |
+| Relevant changelog update | 10 | Awards points when a change lists affected endpoints. |
+| No recent deployment | 10 | Adds points when the scenario has no recent deploy. |
+| **Maximum base vendor score** | **100** | Sum of the five criteria above. |
+
+**Verdict rules:** a vendor candidate with a base score of at least 60 can be attributed as the vendor in the vendor-outage scenario. If every vendor scores below 30 and the scenario has a recent deploy, the engine can attribute the issue to own code. Other cases are inconclusive. A configured Gemini counter-check can lower the final confidence by 10 points if it finds a strong counter-hypothesis; Gemini does not originate the base mathematical score.
+
+> **Important implementation detail:** the bundled deployment context is scenario-driven. The GitHub scanner discovers dependencies; it does not currently inspect a real deployment history. The sample fixture's timestamps, incidents, and some evidence are illustrative and should not be treated as live operational truth.
+
+## Technology and data
+
+| Area | Implementation |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite 8, Recharts, Tailwind CSS 4, Lucide icons, and Motion |
+| Backend | Node.js, Express 4, TypeScript executed with `tsx` |
+| Request validation | Zod schemas in the Express server |
+| Telemetry persistence | JSON event store in `data/events.json`, capped at the latest 5,000 events |
+| Signal cache | JSON files under `data/cache/` |
+| Optional AI | Google Gemini via `@google/genai` |
+| Optional web extraction | TinyFish Agent API |
+| Repository scanning | GitHub raw file endpoints with GitHub REST API fallback |
+| Deployment configuration | Vercel configuration in `vercel.json` |
+
+There is no database server or queue in the current implementation. The JSON files are intended for the local prototype and should not be assumed to provide multi-instance coordination, transactional writes, or production-grade retention.
+
+## HTTP API
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/api/verdict?scenario=auth0` | Compute and return the current verdict. Use `scenario=own_code` for the bundled internal-regression scenario. |
+| `POST` | `/api/verdict/run` | Run a correlation sweep; accepts optional `scenario`, `forceReplay`, and `activeVendorIds`. |
+| `POST` | `/api/ingest` | Validate, rate-limit, and persist one telemetry event. Returns an event ID and a coarse attribution hint. |
+| `GET` | `/api/metrics` | Return minute-bucketed error rates, p95 latency, traffic, and incident markers. |
+| `GET` | `/api/telemetry` | Compatibility alias for the metrics timeline. |
+| `GET` | `/api/vendors` | Return configured vendors enriched with status. |
+| `GET` | `/api/signals` | Aggregate status, changelog, and community signals. |
+| `GET` | `/api/changes` | Return vendor changelog updates. |
+| `GET` | `/api/sweep-logs?scenario=auth0` | Return correlation sweep log entries. |
+| `POST` | `/api/scan` | Scan a public GitHub repository for supported dependency manifests. |
+| `POST` | `/api/scan-repo` | Compatibility alias for repository scanning. |
+| `POST` | `/api/chat` | Ask the sample SRE copilot; uses Gemini when configured and a sample-specific fallback otherwise. |
+| `POST` | `/api/replay/trigger` | Replay the bundled synthetic incident events and run analysis. |
+| `GET` | `/sample-app` | Open the included telemetry-emitting sample application. |
+
+### Example: ingest an event
+
+```powershell
+$event = @{
+  ts = (Get-Date).ToUniversalTime().ToString('o')
+  service = 'identity-service'
+  dependency = 'Auth0'
+  endpoint = '/api/auth/callback'
+  statusCode = 503
+  latencyMs = 1420
+  message = 'Upstream token request failed'
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post -Uri http://localhost:3000/api/ingest `
+  -ContentType 'application/json' -Body $event
+```
+
+## Getting started
+
+### Requirements
+
+- Node.js and npm compatible with the installed Vite toolchain.
+- Network access is only needed for dependency installation and optional live integrations.
+
+### Install and run
+
+```powershell
+git clone https://github.com/KaushikChan2007/IncidentPulse_AI.git
+cd IncidentPulse_AI
+npm install --legacy-peer-deps
 npm run dev
-
-# 3. Trigger the incident replay simulation (or click "Run demo" in the web header)
-npm run replay
 ```
 
-Open `http://localhost:3000` to view the live dashboard.
+Open [http://localhost:3000](http://localhost:3000). `--legacy-peer-deps` is currently needed with npm because the declared Vite and esbuild peer ranges conflict; the project also includes a Bun lockfile.
 
----
+### Optional credentials
 
-## Environment Variables (`.env.local`)
+Copy `.env.example` to `.env.local` and set only the credentials for integrations you plan to use. These values are read server-side; do not commit `.env.local`.
 
-Keys are read strictly from `.env.local` (or `.env`) on the server. **Keys are never exposed to client bundles, logged, or printed.**
+| Variable | Required | Used for |
+| --- | --- | --- |
+| `TINYFISH_API_KEY` | No | Live web-agent extraction for vendor status, changelogs, and community reports. |
+| `GEMINI_API_KEY` | No | AI incident explanation and counter-check; the chat endpoint also uses it when available. |
+| `GITHUB_TOKEN` | No | Higher GitHub API rate limits while scanning public repositories. |
+| `APP_URL` | No | Target base URL for the replay script; defaults to `http://localhost:3000`. |
+| `PORT` | No | Server port; defaults to `3000`. |
 
-Create `.env.local` in the project root:
+Without credentials or live responses, the application can use the checked-in cache/sample data. The header/footer data mode distinguishes `LIVE`, `CACHED`, and `REPLAY`; cached or replay results are not proof of current external conditions.
 
-```ini
-# TinyFish Web Agent API (extracts vendor status, changelogs, and community signals)
-# Official endpoint: POST https://agent.tinyfish.ai/v1/automation/run
-TINYFISH_API_KEY="your_tinyfish_api_key_here"
+## Try the demo
 
-# Gemini AI (synthesizes plain-language briefs, 3 fix steps, and adversarial counter-checks)
-# In AI Studio, automatically injected at runtime.
-GEMINI_API_KEY="your_gemini_api_key_here"
+1. Start the server with `npm run dev`.
+2. Open the dashboard. The initial UI contains sample incident content while it loads available API data.
+3. Use **Auth0 Outage** and **Deploy Bug** to switch between the bundled scenarios.
+4. Use **Run Demo** to send synthetic replay events through `/api/ingest` and rerun the engine.
+5. Open **Connect** to scan a public repository or send a test event. The bundled `/sample-app` can also emit sample Auth0 and database errors.
+6. Open **Radar** to review vendor changelog changes.
 
-# GitHub Token (OPTIONAL: increases rate limits for repository dependency scanning)
-# Public repositories work without a token.
-GITHUB_TOKEN="your_optional_github_token"
+The repository scan is read-only and limited to supported manifests in a public GitHub repository; it does not clone or execute the scanned project.
+
+## Development and validation
+
+```powershell
+npm run lint        # TypeScript type-check
+npm run build       # Production frontend build
+npm run test:engine # Deterministic engine scenario check
+npm run replay      # Send the bundled replay events to the local API
+npm run send:errors # Send sample error events
+npm run preview     # Preview the built frontend
 ```
 
----
+Architecture diagrams and a component inventory are also available in the [architecture diagram](./.github/modernize/assessment/engines/facts/architecture-diagram.md).
 
-## Data Modes
+## Repository map
 
-IncidentPulse AI operates in 3 distinct modes, truthfully signaled on the header chip and footer badge:
+| Path | Purpose |
+| --- | --- |
+| `src/` | React dashboard, components, frontend data access, and UI types |
+| `server.ts` | Express server, REST endpoints, validation, and middleware |
+| `lib/engine.ts` | Weighted vendor correlation and verdict synthesis |
+| `lib/agents/` | Vendor status, changelog, and community signal collection |
+| `lib/github.ts` | Public GitHub manifest scanner and dependency mapping |
+| `lib/tinyfish.ts` | Optional TinyFish client |
+| `lib/storage.ts` | JSON telemetry event persistence and metric aggregation |
+| `config/dependencies.json` | Configured vendor catalog |
+| `data/cache/` | Cached vendor status, changelog, and community signals |
+| `data/replay/` | Synthetic replay profile |
+| `sample-app/` | Small client used to send test telemetry |
+| `scripts/` | Engine check, replay, event sender, and vendor probes |
+| `docs/` | Scoring graph and dashboard screenshot |
 
-| Mode | Trigger / Condition | Source |
-| :--- | :--- | :--- |
-| **`LIVE`** | Active live queries through TinyFish Agent API (`https://agent.tinyfish.ai/v1/automation/run`) and GitHub API. | Live Web Agent Automation |
-| **`CACHED`** | Used if live calls time out (>15s), network is offline, or `TINYFISH_API_KEY` is not yet configured. | `/data/cache/status.json`, `/data/cache/changes.json`, `/data/cache/community.json` |
-| **`REPLAY`** | Triggered by clicking **"Run demo"** or running `npm run replay`. Ingests synthetic error bursts aligned with a real past Auth0 incident window. | `/data/replay/incident.json` |
+## Limitations and safe use
 
-*Note: The applet never presents cached or replay data as live.*
+- Attribution depends on available telemetry and signal quality; a high score is not a guarantee or a substitute for operator review.
+- The checked-in data and bundled scenarios are demo fixtures. Some displayed incident details are illustrative.
+- The own-code deployment context is simulated; there is no live CI/CD deployment-history integration.
+- Repository scanning detects selected manifests and known package-name patterns, not every dependency, runtime call, or data flow.
+- JSON persistence is a local prototype store. Use a database and appropriate concurrency, retention, and access controls before a multi-user production deployment.
+- Configure API credentials only in the server environment. Never place secrets in frontend variables or commit secret files.
+- Review generated remediation suggestions before applying them to production.
 
----
+## License
 
-## Architecture & Real Engine Modules
-
-1. **TinyFish Agents (`/lib/tinyfish.ts`, `/lib/agents/`)**:
-   - `status.ts`: Probes vendor status pages, extracting operational state (`operational`, `degraded`, `major_outage`), incident title, and start timestamps.
-   - `changelog.ts`: Crawls documentation and release notes, computes SHA-256 hashes, diffs against prior runs, and flags affected endpoints (e.g., `/v1/token`, `/api/auth/callback`).
-   - `community.ts`: Aggregates third-party outage reports (DownDetector, developer chatter).
-   - Results are automatically persisted to `/data/cache/*.json` with ISO timestamps.
-
-2. **Telemetry Ingestion & Storage (`/lib/storage.ts`)**:
-   - `POST /api/ingest`: Accepts `{ts, service, dependency, statusCode, latencyMs, message, endpoint}`.
-   - Rate-limited to 120 requests/minute per IP with Zod validation.
-   - Stored in persistent JSON store (`/data/events.json`).
-   - `GET /api/metrics`: Aggregates minute-by-minute error rates and p95 latencies for the Recharts telemetry timeline.
-
-3. **Repository Scanner (`/lib/github.ts`)**:
-   - `POST /api/scan`: Fetches `package.json`, `requirements.txt`, and `vercel.json` from the GitHub API.
-   - Maps discovered packages (`@auth0/*`, `@supabase/*`, `stripe`, `aws-sdk`, `vercel`) against `/config/dependencies.json`.
-   - Never inspects `.env` files or secret keys.
-
-4. **Deterministic Correlation Formula (`/lib/engine.ts`)**:
-   Scores candidate vendors on a 0–100 scale:
-   - Vendor status incident overlapping error window: **35 pts**
-   - Error/latency timing match with vendor window: **30 pts**
-   - Community outage reports surge: **15 pts**
-   - Recent doc/changelog update affecting endpoints: **10 pts**
-   - No deploy in the last 24h: **10 pts**
-   
-   **Verdict Criteria**:
-   - `vendor` if top score $\ge 60$
-   - `own_code` if all vendor scores $< 30$ and recent deployment detected
-   - otherwise `inconclusive`
-
-   **Adversarial Counter-Check**:
-   A secondary Gemini pass argues against the preliminary verdict. If a strong alternative hypothesis is discovered, confidence is lowered by **10%** and an evidence pill labeled `"Counter-check"` is displayed. The numeric score strictly originates from the mathematical formula.
-
----
-
-## CLI Utilities
-
-```bash
-# 1. Run end-to-end verification against cached data and print verdict JSON:
-npm run test:engine
-
-# 2. Replay real past incident synthetic errors:
-npm run replay
-
-# 3. Emit random error bursts into /api/ingest:
-npm run send:errors
-```
-
----
-
-## Sample Application
-
-A demonstration client application is included at `/sample-app`:
-- Navigate to `http://localhost:3000/sample-app` in your browser.
-- Click **"Simulate Auth0 503 Outage"** or **"Simulate DB Pool Leak"** to emit failures into the live `/api/ingest` telemetry receiver.
-
----
-
-## Known Limitations
-
-- **Native Modules**: SQLite via `better-sqlite3` requires C++ build toolchains (`node-gyp`), which are absent in minimal sandbox containers. A high-throughput, persistent JSON event store (`/data/events.json`) is used instead to guarantee 100% runtime reliability.
-- **TinyFish Timeouts**: When running in hermetic or firewalled environments without live internet access or valid API credentials, the status and changelog agents gracefully fall back to `/data/cache/*.json` and mark the data mode as `CACHED`.
-- **CORS**: Ingestion and API endpoints are restricted to localhost and configured application domains.
+No license is currently declared. Obtain the repository owner's permission before redistributing the project.
