@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-10-24T14:10:00.000Z",
+  "reports": [
+    {
+      "vendor": "Auth0",
+      "count": 418,
+      "source": "DownDetector & Developer X",
+      "summary": "+418 DownDetector & X reports citing token 503 errors within 25 minutes",
+      "sourceUrl": "https://downdetector.com/status/auth0"
+    },
+    {
+      "vendor": "Supabase",
+      "count": 2,
+      "source": "Community Health Monitor",
+      "summary": "Baseline noise (2 isolated client reports)",
+      "sourceUrl": "https://downdetector.com/status/supabase"
+    },
+    {
+      "vendor": "Vercel",
+      "count": 4,
+      "source": "Community Health Monitor",
+      "summary": "Nominal baseline (4 reports)",
+      "sourceUrl": "https://downdetector.com/status/vercel"
+    }
+  ]
+}

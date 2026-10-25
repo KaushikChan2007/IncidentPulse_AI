@@ -1,86 +1,124 @@
 # IncidentPulse AI
 
-IncidentPulse AI is an AI-powered incident detection platform that helps developers identify whether application failures originate from their code or third-party services. It correlates logs, API latency, status pages, and changelogs to detect incidents, identify root causes, and generate actionable reports for faster debugging.
+Deterministic, evidence-linked incident attribution that tells developers whether an app error is caused by their own code or a third-party vendor (hosting, database, auth, storage, payments), with Bayesian confidence scores and live evidence.
 
-## Overview
+---
 
-Modern applications depend on multiple internal and external systems. When incidents occur, teams often struggle to answer a crucial question:
-
-> Is the failure caused by our code, a dependency, or an external service outage?
-
-IncidentPulse AI helps answer that quickly by combining observability signals and contextual intelligence into a single incident analysis workflow.
-
-## Key Features
-
-- AI-based incident detection across application and dependency signals
-- Correlation of logs, API latency, service status pages, and changelogs
-- Root-cause analysis to distinguish internal issues from third-party outages
-- Actionable reports for engineering and incident response teams
-- Faster investigation cycles for debugging and mitigation
-
-## Problem It Solves
-
-Teams often receive noisy alerts and fragmented signals from different tools. As a result, they waste time investigating the wrong layer of the stack. IncidentPulse AI consolidates this information and helps isolate whether the issue is:
-
-- Application code regression
-- Infrastructure or deployment instability
-- Third-party service degradation
-- A cascading failure triggered by an external dependency
-
-## Typical Workflow
-
-1. Ingest operational and dependency data
-2. Correlate incidents across multiple sources
-3. Detect anomaly patterns and likely failure origins
-4. Surface probable root cause using AI analysis
-5. Generate team-ready remediation insights
-
-## Architecture
-
-This project is structured to support an AI-assisted incident investigation pipeline, including:
-
-- Data collection from logs and telemetry
-- Service status and changelog ingestion
-- Latency and performance monitoring
-- AI reasoning over incident signals
-- Reporting and actionable recommendations
-
-## Tech Stack
-
-This repository is intended for a modern AI-driven incident intelligence stack. Typical technologies may include:
-
-- Python or TypeScript for backend services
-- AI/ML inference for incident classification and root-cause analysis
-- APIs for monitoring, telemetry, and external status feeds
-- Database and event processing components for correlation
-- Web or dashboard interfaces for incident reporting
-
-## Getting Started
-
-To begin development, clone the repository and install the project dependencies:
+## Quick Start (Run the Demo in 3 Commands)
 
 ```bash
-git clone https://github.com/KaushikChan2007/IncidentPulse_AI.git
-cd IncidentPulse_AI
+# 1. Install dependencies
+npm install
+
+# 2. Start the development server (Express backend + Vite client)
+npm run dev
+
+# 3. Trigger the incident replay simulation (or click "Run demo" in the web header)
+npm run replay
 ```
 
-Then follow the project-specific setup instructions in the repository configuration and service files.
+Open `http://localhost:3000` to view the live dashboard.
 
-## Project Goals
+---
 
-- Detect incidents earlier and with more context
-- Reduce troubleshooting time across teams
-- Separate code issues from vendor/service issues
-- Improve operational clarity during outages
+## Environment Variables (`.env.local`)
 
-## Contributing
+Keys are read strictly from `.env.local` (or `.env`) on the server. **Keys are never exposed to client bundles, logged, or printed.**
 
-Contributions are welcome. Please open an issue or start a discussion for feature ideas, architectural improvements, and bug fixes.
+Create `.env.local` in the project root:
 
-## License
+```ini
+# TinyFish Web Agent API (extracts vendor status, changelogs, and community signals)
+# Official endpoint: POST https://agent.tinyfish.ai/v1/automation/run
+TINYFISH_API_KEY="your_tinyfish_api_key_here"
 
-This project does not currently declare a license. Add a license file before production use if you plan to distribute or share the project publicly.
+# Gemini AI (synthesizes plain-language briefs, 3 fix steps, and adversarial counter-checks)
+# In AI Studio, automatically injected at runtime.
+GEMINI_API_KEY="your_gemini_api_key_here"
 
-## Contact
+# GitHub Token (OPTIONAL: increases rate limits for repository dependency scanning)
+# Public repositories work without a token.
+GITHUB_TOKEN="your_optional_github_token"
+```
 
-For questions or collaboration, contact the repository owner or open an issue in the project tracker.
+---
+
+## Data Modes
+
+IncidentPulse AI operates in 3 distinct modes, truthfully signaled on the header chip and footer badge:
+
+| Mode | Trigger / Condition | Source |
+| :--- | :--- | :--- |
+| **`LIVE`** | Active live queries through TinyFish Agent API (`https://agent.tinyfish.ai/v1/automation/run`) and GitHub API. | Live Web Agent Automation |
+| **`CACHED`** | Used if live calls time out (>15s), network is offline, or `TINYFISH_API_KEY` is not yet configured. | `/data/cache/status.json`, `/data/cache/changes.json`, `/data/cache/community.json` |
+| **`REPLAY`** | Triggered by clicking **"Run demo"** or running `npm run replay`. Ingests synthetic error bursts aligned with a real past Auth0 incident window. | `/data/replay/incident.json` |
+
+*Note: The applet never presents cached or replay data as live.*
+
+---
+
+## Architecture & Real Engine Modules
+
+1. **TinyFish Agents (`/lib/tinyfish.ts`, `/lib/agents/`)**:
+   - `status.ts`: Probes vendor status pages, extracting operational state (`operational`, `degraded`, `major_outage`), incident title, and start timestamps.
+   - `changelog.ts`: Crawls documentation and release notes, computes SHA-256 hashes, diffs against prior runs, and flags affected endpoints (e.g., `/v1/token`, `/api/auth/callback`).
+   - `community.ts`: Aggregates third-party outage reports (DownDetector, developer chatter).
+   - Results are automatically persisted to `/data/cache/*.json` with ISO timestamps.
+
+2. **Telemetry Ingestion & Storage (`/lib/storage.ts`)**:
+   - `POST /api/ingest`: Accepts `{ts, service, dependency, statusCode, latencyMs, message, endpoint}`.
+   - Rate-limited to 120 requests/minute per IP with Zod validation.
+   - Stored in persistent JSON store (`/data/events.json`).
+   - `GET /api/metrics`: Aggregates minute-by-minute error rates and p95 latencies for the Recharts telemetry timeline.
+
+3. **Repository Scanner (`/lib/github.ts`)**:
+   - `POST /api/scan`: Fetches `package.json`, `requirements.txt`, and `vercel.json` from the GitHub API.
+   - Maps discovered packages (`@auth0/*`, `@supabase/*`, `stripe`, `aws-sdk`, `vercel`) against `/config/dependencies.json`.
+   - Never inspects `.env` files or secret keys.
+
+4. **Deterministic Correlation Formula (`/lib/engine.ts`)**:
+   Scores candidate vendors on a 0–100 scale:
+   - Vendor status incident overlapping error window: **35 pts**
+   - Error/latency timing match with vendor window: **30 pts**
+   - Community outage reports surge: **15 pts**
+   - Recent doc/changelog update affecting endpoints: **10 pts**
+   - No deploy in the last 24h: **10 pts**
+   
+   **Verdict Criteria**:
+   - `vendor` if top score $\ge 60$
+   - `own_code` if all vendor scores $< 30$ and recent deployment detected
+   - otherwise `inconclusive`
+
+   **Adversarial Counter-Check**:
+   A secondary Gemini pass argues against the preliminary verdict. If a strong alternative hypothesis is discovered, confidence is lowered by **10%** and an evidence pill labeled `"Counter-check"` is displayed. The numeric score strictly originates from the mathematical formula.
+
+---
+
+## CLI Utilities
+
+```bash
+# 1. Run end-to-end verification against cached data and print verdict JSON:
+npm run test:engine
+
+# 2. Replay real past incident synthetic errors:
+npm run replay
+
+# 3. Emit random error bursts into /api/ingest:
+npm run send:errors
+```
+
+---
+
+## Sample Application
+
+A demonstration client application is included at `/sample-app`:
+- Navigate to `http://localhost:3000/sample-app` in your browser.
+- Click **"Simulate Auth0 503 Outage"** or **"Simulate DB Pool Leak"** to emit failures into the live `/api/ingest` telemetry receiver.
+
+---
+
+## Known Limitations
+
+- **Native Modules**: SQLite via `better-sqlite3` requires C++ build toolchains (`node-gyp`), which are absent in minimal sandbox containers. A high-throughput, persistent JSON event store (`/data/events.json`) is used instead to guarantee 100% runtime reliability.
+- **TinyFish Timeouts**: When running in hermetic or firewalled environments without live internet access or valid API credentials, the status and changelog agents gracefully fall back to `/data/cache/*.json` and mark the data mode as `CACHED`.
+- **CORS**: Ingestion and API endpoints are restricted to localhost and configured application domains.

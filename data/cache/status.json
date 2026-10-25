@@ -1,0 +1,54 @@
+{
+  "mode": "LIVE",
+  "timestamp": "2026-10-25T03:01:41.589Z",
+  "vendors": [
+    {
+      "id": "vercel",
+      "name": "Vercel",
+      "category": "hosting",
+      "status": "operational",
+      "statusMessage": "All Systems Operational",
+      "responseTimeMs": 401,
+      "sourceUrl": "https://www.vercel-status.com"
+    },
+    {
+      "id": "auth0",
+      "name": "Auth0",
+      "category": "auth",
+      "status": "major_outage",
+      "statusMessage": "Elevated 503 HTTP responses on US-East /oauth/token endpoint",
+      "incidentTitle": "Elevated 503 Service Unavailable on Token Verification Broker",
+      "incidentStartedAt": "2026-10-24T14:02:00.000Z",
+      "responseTimeMs": 1420,
+      "sourceUrl": "https://status.auth0.com"
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "category": "database",
+      "status": "operational",
+      "statusMessage": "All Systems Operational",
+      "incidentTitle": "Elevated Mgmt API Error Rates in Multiple Regions",
+      "responseTimeMs": 482,
+      "sourceUrl": "https://status.supabase.com"
+    },
+    {
+      "id": "aws-s3",
+      "name": "AWS S3",
+      "category": "storage",
+      "status": "operational",
+      "statusMessage": "Standard Storage & Multi-Region Access Points healthy",
+      "responseTimeMs": 31,
+      "sourceUrl": "https://health.aws.amazon.com"
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "category": "payments",
+      "status": "operational",
+      "statusMessage": "API & Webhook delivery nominal",
+      "responseTimeMs": 42,
+      "sourceUrl": "https://status.stripe.com"
+    }
+  ]
+}

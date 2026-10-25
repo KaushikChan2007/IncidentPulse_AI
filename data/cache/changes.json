@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-10-24T12:00:00.000Z",
+  "contentHashes": {
+    "auth0": "a78e2b901fc4",
+    "supabase": "f339bb810e2d",
+    "vercel": "91a84f32c021",
+    "stripe": "2c918a38ef61"
+  },
+  "changes": [
+    {
+      "id": "ch-auth0-pkce",
+      "vendor": "Auth0",
+      "title": "OAuth 2.0 PKCE Strict Verification Enforcement",
+      "ts": "Today 11:30 UTC",
+      "diff": "@@ -12,4 +12,4 @@\n- allow_plain_pkce: true\n- default_fallback_unverified: true\n+ require_s256_pkce: true\n+ reject_unhashed_code_verifier: true",
+      "affectedEndpoints": ["/v1/token", "/api/auth/callback"]
+    },
+    {
+      "id": "ch-supabase-pool",
+      "vendor": "Supabase",
+      "title": "Connection Pool Idle Timeout reduction to 60s",
+      "ts": "Yesterday 18:45 UTC",
+      "diff": "@@ -44,3 +44,3 @@\n- pgbouncer_idle_timeout: 300\n+ pgbouncer_idle_timeout: 60",
+      "affectedEndpoints": ["/api/db/query", "/api/projects"]
+    },
+    {
+      "id": "ch-vercel-edge",
+      "vendor": "Vercel",
+      "title": "Edge Runtime Regional Header normalization in EWR1/IAD1",
+      "ts": "Oct 22 09:15 UTC",
+      "diff": "@@ -8,3 +8,3 @@\n- x-vercel-edge-region: auto\n+ x-vercel-edge-region: explicit",
+      "affectedEndpoints": []
+    },
+    {
+      "id": "ch-stripe-webhook",
+      "vendor": "Stripe",
+      "title": "Webhook signature v2 timestamp tolerance window",
+      "ts": "Oct 20 16:00 UTC",
+      "diff": "@@ -3,2 +3,2 @@\n- signature_clock_drift_seconds: 600\n+ signature_clock_drift_seconds: 300",
+      "affectedEndpoints": ["/api/webhooks/stripe"]
+    }
+  ]
+}

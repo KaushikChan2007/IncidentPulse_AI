@@ -1,0 +1,34 @@
+{
+  "incidentId": "inc_auth0_us_east_503",
+  "vendor": "Auth0",
+  "title": "Elevated Error Rates on Token Verification (/oauth/token)",
+  "status": "degraded",
+  "impact": "major",
+  "startTime": "2026-10-24T14:02:00.000Z",
+  "endTime": "2026-10-24T14:45:00.000Z",
+  "durationMinutes": 43,
+  "affectedRegions": ["us-east-1", "eu-central-1"],
+  "affectedEndpoints": ["/oauth/token", "/api/v2/users", "/userinfo"],
+  "updates": [
+    {
+      "timestamp": "2026-10-24T14:02:00.000Z",
+      "status": "Investigating",
+      "body": "We are currently investigating elevated HTTP 503 error rates and token exchange timeouts impacting customers in US-East."
+    },
+    {
+      "timestamp": "2026-10-24T14:18:00.000Z",
+      "status": "Identified",
+      "body": "The issue has been identified as a deadlocked connection pool within the upstream cryptographic signing broker. Remediation traffic rerouting is underway."
+    },
+    {
+      "timestamp": "2026-10-24T14:38:00.000Z",
+      "status": "Monitoring",
+      "body": "Mitigation deployed. Core identity services are recovering with error rates subsiding below 0.2%."
+    },
+    {
+      "timestamp": "2026-10-24T14:45:00.000Z",
+      "status": "Resolved",
+      "body": "All identity services and /oauth/token endpoints have returned to fully operational status."
+    }
+  ]
+}

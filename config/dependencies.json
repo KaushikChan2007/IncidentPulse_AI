@@ -1,0 +1,42 @@
+[
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "category": "hosting",
+    "statusUrl": "https://www.vercel-status.com",
+    "changelogUrl": "https://vercel.com/changelog",
+    "uptimePercentage": 99.99
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "category": "database",
+    "statusUrl": "https://status.supabase.com",
+    "changelogUrl": "https://supabase.com/changelog",
+    "uptimePercentage": 99.98
+  },
+  {
+    "id": "auth0",
+    "name": "Auth0",
+    "category": "auth",
+    "statusUrl": "https://status.auth0.com",
+    "changelogUrl": "https://auth0.com/changelog",
+    "uptimePercentage": 99.42
+  },
+  {
+    "id": "stripe",
+    "name": "Stripe",
+    "category": "payments",
+    "statusUrl": "https://status.stripe.com",
+    "changelogUrl": "https://stripe.com/docs/changelog",
+    "uptimePercentage": 99.95
+  },
+  {
+    "id": "aws-s3",
+    "name": "AWS S3",
+    "category": "storage",
+    "statusUrl": "https://health.aws.amazon.com",
+    "changelogUrl": "https://aws.amazon.com/releasenotes",
+    "uptimePercentage": 99.99
+  }
+]

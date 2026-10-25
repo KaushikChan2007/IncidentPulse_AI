@@ -1,0 +1,182 @@
+[
+  {
+    "ts": "2026-10-24T11:33:19.455Z",
+    "service": "identity-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1420,
+    "message": "Auth0 /oauth/token 503 Service Unavailable upstream broker outage",
+    "id": "evt_1792841599456_lxhgf"
+  },
+  {
+    "ts": "2026-10-24T11:34:02.506Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1365,
+    "message": "Auth0 token request failed: 503 Service Unavailable (upstream broker US-East)",
+    "id": "evt_1792841672633_xgfmj"
+  },
+  {
+    "ts": "2026-10-24T11:34:04.708Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/oauth/token",
+    "statusCode": 503,
+    "latencyMs": 1479,
+    "message": "Upstream gateway timeout: Auth0 identity pool uncontactable",
+    "id": "evt_1792841672713_iij7k"
+  },
+  {
+    "ts": "2026-10-24T11:34:06.776Z",
+    "service": "session-validator",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/session",
+    "statusCode": 503,
+    "latencyMs": 1391,
+    "message": "OAuth token introspection failed: 503 Service Unavailable",
+    "id": "evt_1792841672779_27eax"
+  },
+  {
+    "ts": "2026-10-24T11:34:08.842Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1510,
+    "message": "Auth0 token request failed: 503 Service Unavailable (upstream broker US-East)",
+    "id": "evt_1792841672845_mngd0"
+  },
+  {
+    "ts": "2026-10-24T11:34:10.909Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/oauth/token",
+    "statusCode": 503,
+    "latencyMs": 1423,
+    "message": "Upstream gateway timeout: Auth0 identity pool uncontactable",
+    "id": "evt_1792841672911_up0lq"
+  },
+  {
+    "ts": "2026-10-24T11:34:12.974Z",
+    "service": "session-validator",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/session",
+    "statusCode": 503,
+    "latencyMs": 1350,
+    "message": "OAuth token introspection failed: 503 Service Unavailable",
+    "id": "evt_1792841672977_pqk8j"
+  },
+  {
+    "ts": "2026-10-24T11:34:15.040Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1395,
+    "message": "Auth0 token request failed: 503 Service Unavailable (upstream broker US-East)",
+    "id": "evt_1792841673042_09a8n"
+  },
+  {
+    "ts": "2026-10-24T11:34:17.106Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/oauth/token",
+    "statusCode": 503,
+    "latencyMs": 1578,
+    "message": "Upstream gateway timeout: Auth0 identity pool uncontactable",
+    "id": "evt_1792841673109_k7bs7"
+  },
+  {
+    "ts": "2026-10-24T11:34:19.172Z",
+    "service": "session-validator",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/session",
+    "statusCode": 503,
+    "latencyMs": 1302,
+    "message": "OAuth token introspection failed: 503 Service Unavailable",
+    "id": "evt_1792841673176_oit8g"
+  },
+  {
+    "ts": "2026-10-24T11:34:21.242Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1488,
+    "message": "Auth0 token request failed: 503 Service Unavailable (upstream broker US-East)",
+    "id": "evt_1792841673246_b41ff"
+  },
+  {
+    "ts": "2026-10-24T11:34:23.308Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/oauth/token",
+    "statusCode": 503,
+    "latencyMs": 1424,
+    "message": "Upstream gateway timeout: Auth0 identity pool uncontactable",
+    "id": "evt_1792841673310_8w267"
+  },
+  {
+    "ts": "2026-10-24T11:34:25.372Z",
+    "service": "session-validator",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/session",
+    "statusCode": 503,
+    "latencyMs": 1344,
+    "message": "OAuth token introspection failed: 503 Service Unavailable",
+    "id": "evt_1792841673374_dxlyf"
+  },
+  {
+    "ts": "2026-10-24T11:34:27.437Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1423,
+    "message": "Auth0 token request failed: 503 Service Unavailable (upstream broker US-East)",
+    "id": "evt_1792841673439_mq1aj"
+  },
+  {
+    "ts": "2026-10-24T11:34:29.502Z",
+    "service": "auth-service",
+    "dependency": "Auth0",
+    "endpoint": "/oauth/token",
+    "statusCode": 503,
+    "latencyMs": 1450,
+    "message": "Upstream gateway timeout: Auth0 identity pool uncontactable",
+    "id": "evt_1792841673504_5al6k"
+  },
+  {
+    "ts": "2026-10-24T11:34:31.595Z",
+    "service": "session-validator",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/session",
+    "statusCode": 503,
+    "latencyMs": 1290,
+    "message": "OAuth token introspection failed: 503 Service Unavailable",
+    "id": "evt_1792841673600_teaqm"
+  },
+  {
+    "ts": "2026-10-25T01:16:14.183Z",
+    "service": "identity-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1420,
+    "message": "Auth0 /oauth/token 503 Service Unavailable upstream broker outage",
+    "id": "evt_1792890974183_d8ghk"
+  },
+  {
+    "ts": "2026-10-25T02:33:03.647Z",
+    "service": "identity-service",
+    "dependency": "Auth0",
+    "endpoint": "/api/auth/callback",
+    "statusCode": 503,
+    "latencyMs": 1420,
+    "message": "Auth0 /oauth/token 503 Service Unavailable upstream broker outage",
+    "id": "evt_1792895583648_v5wd2"
+  }
+]
